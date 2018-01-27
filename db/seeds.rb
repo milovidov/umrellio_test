@@ -11,25 +11,32 @@ posts_ids = []
 user_ips = []
 
 (1..254).each do |number|
-user_ips.push "192.168.0.#{number}"
+  user_ips.push "192.168.0.#{number}"
 end
 
 body_length = 100
 
-(1..100).each do |number|
-  user = User.create login: "user#{number}"
-  users.push user
+User.transaction do
+  (1..100).each do |number|
+    user = User.create login: "user#{number}"
+    users.push user
+  end
 end
 
-(1..200000).each do |number|
-  user = users.sample
-  post = user.posts.create title: "title#{number}", body: [*('A'..'Z')].sample(body_length).join, ip: user_ips.sample
+Post.transaction do
+  (1..200000).each do |number|
+    user = users.sample
+    post = user.posts.create title: "title#{number}", body: [*('A'..'Z')].sample(body_length).join, ip: user_ips.sample
 
-  rate = rand(1.0..5.0)
-  count = rand(1..1000000)
 
-  Rate.create post_id: post.id, count: count, rate: rate
-  posts_ids.push post.id
+    rate = rand(1.0..5.0)
+    count = rand(1..1000000)
+
+    Rate.create post_id: post.id, count: count, rate: rate
+    posts_ids.push post.id
+
+    puts post.id
+  end
 end
 
 
