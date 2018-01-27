@@ -4,7 +4,6 @@ class TopsController < ApplicationController
 
   def index
     @tops = Top.limit(tops_parameters[:limit]).order(rate: :desc)
-    puts @tops.to_json
     json_response @tops
   end
 
